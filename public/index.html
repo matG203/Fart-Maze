@@ -62,9 +62,25 @@
 
   <!-- Mobile joystick -->
   <div id="joystick-zone" class="joystick-zone">
+    <div class="joystick-label">MOVE</div>
     <div id="joystick-base" class="joystick-base">
+      <div class="joystick-arrows-lr"><span>←</span><span>→</span></div>
       <div id="joystick-stick" class="joystick-stick"></div>
     </div>
+  </div>
+
+  <!-- Fart button (mobile, farter only) -->
+  <div id="fart-btn-zone" class="fart-btn-zone" style="display:none">
+    <div class="gauge-label">GAS GAUGE</div>
+    <div class="gauge-wrap"><div id="gauge-fill" class="gauge-bar" style="width:100%"></div></div>
+    <button id="fart-btn" class="fart-btn">💨</button>
+  </div>
+
+  <!-- Desktop fart hint (shown to farter on desktop) -->
+  <div id="fart-key-hint" class="fart-key-hint" style="display:none">
+    <span>💨</span>
+    SPACE to fart
+    <div class="gauge-wrap" style="margin-top:8px"><div id="gauge-fill-desktop" class="gauge-bar" style="width:100%"></div></div>
   </div>
 
   <!-- Fart flash overlay -->
