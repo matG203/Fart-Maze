@@ -143,10 +143,9 @@ input[type=text]::placeholder { color: var(--dim); }
 /* ── Canvas ── */
 .canvas-wrap {
   position: fixed; top: 44px; left: 0; right: 0; bottom: 0;
-  overflow: hidden; display: flex; align-items: center; justify-content: center;
   background: var(--bg);
 }
-#gameCanvas { display: block; image-rendering: pixelated; }
+#gameCanvas { display: block; position: absolute; top: 0; left: 0; }
 
 /* ── Joystick ── */
 .joystick-zone {
