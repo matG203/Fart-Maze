@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>💨 Fart Maze</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <div class="flicker-title">
+      <span class="title-emoji">💨</span>
+      <h1>FART<br>MAZE</h1>
+    </div>
+    <p class="tagline">Escape. Or be crop-dusted.</p>
+  </div>
+  <div class="card">
+    <input id="home-name" type="text" placeholder="Your name" maxlength="20" autocomplete="off"/>
+    <button class="btn btn-primary" onclick="createRoom()">👻 Create Room</button>
+    <div class="divider">or join with a code</div>
+    <div class="join-row">
+      <input id="home-code" type="text" placeholder="XXXX" maxlength="4"/>
+      <button class="btn btn-secondary" onclick="joinRoom()">Join</button>
+    </div>
+    <div id="home-err" class="err hidden"></div>
+  </div>
+</div>
+
+<!-- ═══ LOBBY ═══ -->
+<div id="screen-lobby" class="screen">
+  <div class="lobby-header">
+    <span class="title-emoji-sm">💨</span>
+    <h2>FART MAZE</h2>
+  </div>
+  <div class="card">
+    <div class="code-row">
+      Room: <span id="lobby-code" class="code-badge">----</span>
+      <button class="copy-btn" onclick="copyCode()">📋</button>
+    </div>
+    <p class="sub">Share this code with friends!</p>
+    <div id="lobby-players" class="lobby-player-list"></div>
+    <p id="lobby-hint" class="hint-text"></p>
+    <button id="start-btn" class="btn btn-primary hidden" onclick="startGame()">💨 Start Game!</button>
+    <div id="lobby-err" class="err hidden"></div>
+  </div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div id="screen-game" class="screen">
+  <div id="game-hud" class="game-hud">
+    <div id="hud-role" class="hud-role"></div>
+    <div id="hud-timer" class="hud-timer">3:00</div>
+    <div id="hud-status" class="hud-status"></div>
+  </div>
+
+  <div id="canvas-wrap" class="canvas-wrap">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <!-- Mobile joystick -->
+  <div id="joystick-zone" class="joystick-zone">
+    <div id="joystick-base" class="joystick-base">
+      <div id="joystick-stick" class="joystick-stick"></div>
+    </div>
+  </div>
+
+  <!-- Fart flash overlay -->
+  <div id="fart-flash" class="fart-flash hidden"></div>
+  <div id="fart-msg" class="fart-msg hidden"></div>
+</div>
+
+<!-- ═══ END ═══ -->
+<div id="screen-end" class="screen">
+  <div class="end-content">
+    <div id="end-emoji" class="end-emoji">💨</div>
+    <h2 id="end-title"></h2>
+    <p id="end-body"></p>
+    <div id="end-lists" class="end-lists"></div>
+    <button id="play-again-btn" class="btn btn-primary hidden" onclick="playAgain()">🔄 Play Again</button>
+    <button class="btn btn-secondary" onclick="goHome()">🏠 Home</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
