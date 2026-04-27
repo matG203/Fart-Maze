@@ -1,82 +1,50 @@
-/* ═══════════════════════════════
-   FART MAZE — Stylesheet
-   ═══════════════════════════════ */
-
-*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
 :root {
-  --bg:      #080810;
-  --surface: #0f0f1a;
-  --surface2:#161625;
+  --bg:      #0e0e1a;
+  --surface: #181828;
+  --surface2:#1e1e32;
   --accent:  #7c3aed;
   --accent2: #a78bfa;
   --green:   #22c55e;
   --red:     #ef4444;
   --yellow:  #fbbf24;
-  --text:    #e2e8f0;
-  --dim:     #64748b;
+  --text:    #e8e8ff;
+  --dim:     #7070a0;
   --border:  rgba(124,58,237,0.3);
   --radius:  14px;
-  --shadow:  0 8px 32px rgba(0,0,0,0.8);
+  --shadow:  0 8px 32px rgba(0,0,0,0.7);
 }
 
 html, body {
   width:100%; height:100%;
   background:var(--bg); color:var(--text);
   font-family:'Segoe UI',system-ui,sans-serif;
-  overflow:hidden;
-  user-select:none; -webkit-user-select:none;
+  overflow:hidden; user-select:none; -webkit-user-select:none;
 }
 
-/* ── Screens ── */
 .screen { display:none; width:100%; height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:16px; overflow-y:auto; }
 .screen.active { display:flex; }
 
-/* ── Home ── */
+/* Home */
 .home-hero { text-align:center; margin-bottom:28px; }
 .flicker-title { display:flex; flex-direction:column; align-items:center; }
 .title-emoji { font-size:64px; animation:flicker 3s infinite; }
 .title-emoji-sm { font-size:28px; }
 
-h1 {
-  font-size:3.5rem; font-weight:900; letter-spacing:4px;
-  color:var(--accent2);
-  text-shadow:0 0 20px var(--accent),0 0 40px var(--accent);
-  line-height:1; animation:flicker 4s infinite 1s;
-}
+h1 { font-size:3.2rem; font-weight:900; letter-spacing:4px; color:var(--accent2); text-shadow:0 0 20px var(--accent),0 0 40px var(--accent); line-height:1; animation:flicker 4s infinite 1s; }
 
-@keyframes flicker {
-  0%,95%,100%{opacity:1} 96%{opacity:0.4} 97%{opacity:1} 98%{opacity:0.2} 99%{opacity:1}
-}
+@keyframes flicker { 0%,95%,100%{opacity:1} 96%{opacity:0.4} 97%{opacity:1} 98%{opacity:0.2} 99%{opacity:1} }
 
 .tagline { color:var(--dim); margin-top:8px; font-size:1rem; letter-spacing:1px; }
 
-/* ── Card ── */
-.card {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius); padding:24px;
-  width:100%; max-width:400px; box-shadow:var(--shadow);
-}
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:24px; width:100%; max-width:400px; box-shadow:var(--shadow); }
 
-/* ── Inputs ── */
-input[type=text] {
-  width:100%; padding:13px 16px;
-  background:var(--surface2); color:var(--text);
-  border:1px solid var(--border); border-radius:10px;
-  font-size:1rem; margin-bottom:12px; outline:none;
-  transition:border-color 0.2s;
-}
+input[type=text] { width:100%; padding:13px 16px; background:var(--surface2); color:var(--text); border:1px solid var(--border); border-radius:10px; font-size:1rem; margin-bottom:12px; outline:none; transition:border-color 0.2s; }
 input[type=text]:focus { border-color:var(--accent2); }
 input[type=text]::placeholder { color:var(--dim); }
 
-/* ── Buttons ── */
-.btn {
-  width:100%; border:none; border-radius:10px;
-  font-size:1rem; font-weight:700; padding:14px;
-  cursor:pointer; transition:transform 0.1s,opacity 0.2s;
-  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
-  margin-top:4px;
-}
+.btn { width:100%; border:none; border-radius:10px; font-size:1rem; font-weight:700; padding:14px; cursor:pointer; transition:transform 0.1s,opacity 0.2s; touch-action:manipulation; -webkit-tap-highlight-color:transparent; margin-top:4px; }
 .btn:active { transform:scale(0.97); }
 .btn:disabled { opacity:0.4; cursor:not-allowed; }
 .btn-primary  { background:var(--accent); color:#fff; }
@@ -86,194 +54,77 @@ input[type=text]::placeholder { color:var(--dim); }
 .join-row { display:flex; gap:10px; }
 .join-row input { margin-bottom:0; flex:1; font-size:1.2rem; letter-spacing:4px; text-transform:uppercase; }
 .join-row .btn { width:auto; padding:13px 20px; flex-shrink:0; margin-top:0; }
-
 .divider { text-align:center; color:var(--dim); margin:14px 0; font-size:0.85rem; }
 
-/* ── Lobby ── */
+/* Lobby */
 .lobby-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
 .lobby-header h2 { font-size:1.5rem; font-weight:900; color:var(--accent2); letter-spacing:3px; }
 .code-row { display:flex; align-items:center; gap:10px; font-size:1rem; margin-bottom:6px; }
 .code-badge { background:var(--accent); color:#fff; font-size:1.6rem; font-weight:900; letter-spacing:4px; padding:4px 14px; border-radius:8px; }
 .sub { color:var(--dim); font-size:0.85rem; margin-bottom:16px; }
 .lobby-player-list { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
-.lobby-chip { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.lobby-chip { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-weight:600; }
 .lobby-chip.host::after { content:' 👑'; }
 .hint-text { color:var(--dim); font-size:0.85rem; text-align:center; margin-bottom:12px; }
 
-/* ── Game HUD ── */
-.game-hud {
-  position:fixed; top:0; left:0; right:0; z-index:100;
-  display:flex; align-items:center; justify-content:space-between;
-  padding:8px 14px;
-  background:rgba(8,8,16,0.95);
-  border-bottom:1px solid var(--border);
-}
+/* HUD */
+.game-hud { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:8px 14px; background:rgba(14,14,26,0.97); border-bottom:1px solid var(--border); }
 .hud-role { font-size:0.85rem; font-weight:700; }
-.hud-role.is-it { color:#ff6b6b; animation:pulse-red 1s infinite; }
-.hud-role.runner { color:var(--green); }
+.hud-role.is-it   { color:#ff6b6b; animation:pulse-red 1s infinite; }
+.hud-role.runner  { color:var(--green); }
 .hud-role.escaped { color:var(--yellow); }
-
-@keyframes pulse-red {
-  0%,100%{text-shadow:0 0 8px #ff6b6b} 50%{text-shadow:0 0 20px #ff6b6b,0 0 40px #ef4444}
-}
+@keyframes pulse-red { 0%,100%{text-shadow:0 0 8px #ff6b6b} 50%{text-shadow:0 0 20px #ff6b6b,0 0 40px #ef4444} }
 
 .hud-timer { font-size:1.1rem; font-weight:900; font-variant-numeric:tabular-nums; color:var(--accent2); }
 .hud-timer.urgent { color:var(--red); animation:pulse-red 0.5s infinite; }
-.hud-status { font-size:0.8rem; color:var(--dim); text-align:right; }
+.hud-status { font-size:0.75rem; color:var(--dim); text-align:right; }
 
-/* ── Canvas ── */
-.canvas-wrap {
-  position:fixed; top:44px; left:0; right:0; bottom:0;
-  background:var(--bg);
-}
+/* Canvas */
+.canvas-wrap { position:fixed; top:44px; left:0; right:0; bottom:0; background:#0e0e1a; }
 #gameCanvas { display:block; position:absolute; top:0; left:0; }
 
-/* ═══════════════════════════════════════
-   JOYSTICK — big, obvious, always visible
-   ═══════════════════════════════════════ */
-.joystick-zone {
-  position:fixed;
-  bottom:24px; left:24px;
-  z-index:200;
-  display:none; /* shown only on touch */
-}
+/* ── Joystick ── */
+.joystick-zone { position:fixed; bottom:24px; left:24px; z-index:200; display:none; }
+.joystick-label { text-align:center; color:rgba(255,255,255,0.55); font-size:0.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+.joystick-base { width:130px; height:130px; border-radius:50%; background:rgba(255,255,255,0.1); border:3px solid rgba(255,255,255,0.4); position:relative; box-shadow:0 0 24px rgba(255,255,255,0.08),inset 0 0 20px rgba(0,0,0,0.3); }
+.joystick-base::before { content:'↑'; position:absolute; top:6px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.35); font-size:18px; }
+.joystick-base::after  { content:'↓'; position:absolute; bottom:6px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.35); font-size:18px; }
+.joystick-arrows-lr { position:absolute; top:50%; left:0; right:0; transform:translateY(-50%); display:flex; justify-content:space-between; padding:0 7px; pointer-events:none; color:rgba(255,255,255,0.35); font-size:18px; }
+.joystick-stick { width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,0.8); border:3px solid white; box-shadow:0 0 18px rgba(255,255,255,0.6); position:absolute; transform:translate(-50%,-50%); left:50%; top:50%; pointer-events:none; }
+.joystick-stick.active { background:white; box-shadow:0 0 28px rgba(255,255,255,1); }
 
-.joystick-label {
-  text-align:center;
-  color:rgba(255,255,255,0.5);
-  font-size:0.7rem;
-  font-weight:700;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
+/* ── Fart button zone ── */
+.fart-btn-zone { position:fixed; bottom:24px; right:24px; z-index:200; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.fart-btn { width:100px; height:100px; border-radius:50%; background:radial-gradient(circle,#ff5555,#991111); border:none; box-shadow:0 0 24px rgba(255,50,50,0.6); font-size:2.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:transform 0.1s,box-shadow 0.15s; }
+.fart-btn:active { transform:scale(0.91); box-shadow:0 0 44px rgba(255,50,50,1); }
+.fart-btn:disabled { opacity:0.32; cursor:not-allowed; transform:none; }
 
-.joystick-base {
-  width:130px; height:130px; border-radius:50%;
-  background:rgba(255,255,255,0.12);
-  border:3px solid rgba(255,255,255,0.35);
-  position:relative;
-  box-shadow:0 0 20px rgba(255,255,255,0.1), inset 0 0 20px rgba(0,0,0,0.3);
-}
+/* Ghost button */
+.ghost-btn { width:70px; height:70px; border-radius:50%; background:radial-gradient(circle,#a78bfa,#4c1d95); border:none; box-shadow:0 0 18px rgba(124,58,237,0.6); font-size:1.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; touch-action:manipulation; -webkit-tap-highlight-color:transparent; transition:transform 0.1s,box-shadow 0.15s; }
+.ghost-btn:active { transform:scale(0.91); }
+.ghost-btn:disabled { opacity:0.3; cursor:not-allowed; transform:none; }
 
-/* Direction arrows inside the base */
-.joystick-base::before {
-  content:'↑';
-  position:absolute; top:6px; left:50%; transform:translateX(-50%);
-  color:rgba(255,255,255,0.3); font-size:18px;
-}
-.joystick-base::after {
-  content:'↓';
-  position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
-  color:rgba(255,255,255,0.3); font-size:18px;
-}
+/* Gauge */
+.gauge-wrap { width:100px; height:10px; background:rgba(255,255,255,0.12); border-radius:5px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); }
+.gauge-bar   { height:100%; border-radius:5px; transition:width 0.2s; }
+.gauge-label { color:rgba(255,255,255,0.55); font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
 
-.joystick-arrows-lr {
-  position:absolute; top:50%; left:0; right:0;
-  transform:translateY(-50%);
-  display:flex; justify-content:space-between;
-  padding:0 6px; pointer-events:none;
-  color:rgba(255,255,255,0.3); font-size:18px;
-}
+/* Desktop key hints */
+.fart-key-hint { position:fixed; bottom:24px; right:24px; z-index:200; background:rgba(255,50,50,0.12); border:2px solid rgba(255,50,50,0.4); border-radius:12px; padding:12px 16px; text-align:center; color:#ff8888; font-weight:700; font-size:0.85rem; display:none; min-width:120px; }
+.fart-key-hint span { font-size:1.4rem; display:block; margin-bottom:2px; }
 
-.joystick-stick {
-  width:54px; height:54px; border-radius:50%;
-  background:rgba(255,255,255,0.75);
-  border:3px solid rgba(255,255,255,0.9);
-  box-shadow:0 0 16px rgba(255,255,255,0.5);
-  position:absolute;
-  transform:translate(-50%,-50%);
-  left:50%; top:50%;
-  pointer-events:none;
-  transition:box-shadow 0.1s;
-}
+/* Effects badges */
+.effect-badges { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; }
+.effect-badge { font-size:1rem; background:rgba(255,255,255,0.15); border-radius:6px; padding:2px 6px; }
 
-.joystick-stick.active {
-  background:white;
-  box-shadow:0 0 24px rgba(255,255,255,0.9);
-}
-
-/* ═══════════════════════════════════
-   FART BUTTON — big, right side
-   ═══════════════════════════════════ */
-.fart-btn-zone {
-  position:fixed;
-  bottom:24px; right:24px;
-  z-index:200;
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-}
-
-.fart-btn {
-  width:100px; height:100px; border-radius:50%;
-  background:radial-gradient(circle, #ff4444, #991111);
-  border:4px solid rgba(255,100,100,0.6);
-  box-shadow:0 0 24px rgba(255,50,50,0.5);
-  font-size:2.5rem;
-  cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  transition:transform 0.1s, opacity 0.2s, box-shadow 0.2s;
-  border:none;
-}
-.fart-btn:active { transform:scale(0.92); box-shadow:0 0 40px rgba(255,50,50,0.9); }
-.fart-btn:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
-.fart-btn.hidden { display:none !important; }
-
-/* Gauge bar below fart button */
-.gauge-wrap {
-  width:100px; height:10px;
-  background:rgba(255,255,255,0.15);
-  border-radius:5px; overflow:hidden;
-  border:1px solid rgba(255,255,255,0.2);
-}
-.gauge-bar {
-  height:100%; border-radius:5px;
-  background:linear-gradient(90deg, #ff6b6b, #ff3333);
-  transition:width 0.2s;
-}
-.gauge-label {
-  color:rgba(255,255,255,0.6);
-  font-size:0.65rem; font-weight:700;
-  text-transform:uppercase; letter-spacing:1px;
-}
-
-/* Desktop fart key hint */
-.fart-key-hint {
-  position:fixed; bottom:24px; right:24px; z-index:200;
-  background:rgba(255,50,50,0.15);
-  border:2px solid rgba(255,50,50,0.4);
-  border-radius:12px; padding:12px 18px;
-  text-align:center; color:#ff8888;
-  font-weight:700; font-size:0.9rem;
-  display:none;
-}
-.fart-key-hint span { font-size:1.5rem; display:block; }
-
-/* ── Fart Flash ── */
-.fart-flash {
-  position:fixed; inset:0; z-index:300;
-  background:rgba(100,220,50,0.2);
-  pointer-events:none;
-  animation:flash-anim 0.6s ease-out forwards;
-}
+/* Fart flash */
+.fart-flash { position:fixed; inset:0; z-index:300; background:rgba(100,230,50,0.18); pointer-events:none; animation:flash-anim 0.6s ease-out forwards; }
 @keyframes flash-anim { 0%{opacity:1} 100%{opacity:0} }
 
-.fart-msg {
-  position:fixed; top:55px; left:50%; transform:translateX(-50%);
-  z-index:400; background:rgba(0,0,0,0.9);
-  border:1px solid #22c55e; border-radius:10px;
-  padding:10px 20px; font-size:1rem; font-weight:700;
-  color:#86efac; text-align:center; white-space:nowrap;
-  animation:slide-down 0.3s ease-out; pointer-events:none;
-  max-width:90vw; white-space:normal;
-}
-@keyframes slide-down {
-  from{transform:translateX(-50%) translateY(-10px);opacity:0}
-  to{transform:translateX(-50%) translateY(0);opacity:1}
-}
+.fart-msg { position:fixed; top:55px; left:50%; transform:translateX(-50%); z-index:400; background:rgba(0,0,0,0.92); border:1px solid #22c55e; border-radius:10px; padding:10px 20px; font-size:0.95rem; font-weight:700; color:#86efac; text-align:center; pointer-events:none; max-width:88vw; animation:slide-down 0.3s ease-out; }
+@keyframes slide-down { from{transform:translateX(-50%) translateY(-10px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
 
-/* ── End Screen ── */
+/* End */
 .end-content { text-align:center; max-width:420px; width:100%; }
 .end-emoji { font-size:80px; margin-bottom:12px; }
 .end-content h2 { font-size:2rem; font-weight:900; color:var(--accent2); margin-bottom:8px; }
@@ -283,24 +134,8 @@ input[type=text]::placeholder { color:var(--dim); }
 .end-group-title { font-size:0.8rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
 .end-name { font-weight:700; font-size:0.95rem; }
 
-/* ── Errors ── */
-.err {
-  background:rgba(239,68,68,0.15); border:1px solid var(--red);
-  color:#fca5a5; border-radius:8px; padding:10px 14px;
-  margin-top:10px; font-size:0.9rem; text-align:center;
-}
-
-/* ── Utility ── */
+.err { background:rgba(239,68,68,0.15); border:1px solid var(--red); color:#fca5a5; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.9rem; text-align:center; }
 .hidden { display:none !important; }
 
-/* ── Particles ── */
-.particle {
-  position:fixed; pointer-events:none; z-index:1;
-  width:2px; height:2px; border-radius:50%;
-  background:rgba(124,58,237,0.4);
-  animation:float-up linear infinite;
-}
-@keyframes float-up {
-  from{transform:translateY(100vh) scale(1);opacity:0.6}
-  to{transform:translateY(-10vh) scale(0);opacity:0}
-}
+.particle { position:fixed; pointer-events:none; z-index:1; border-radius:50%; background:rgba(124,58,237,0.35); animation:float-up linear infinite; }
+@keyframes float-up { from{transform:translateY(100vh) scale(1);opacity:0.5} to{transform:translateY(-10vh) scale(0);opacity:0} }
