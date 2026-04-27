@@ -26,7 +26,7 @@ function playFart(){
     const g=ctx.createGain();
     g.gain.setValueAtTime(2,ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
-    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start();
+    src.connect(f);f.connect(g);g.connect(ctx.destination);src.start();
   }catch(e){}
 }
 
@@ -34,12 +34,12 @@ function playAmbient(){
   try{
     const ctx=getAudio();
     const osc=ctx.createOscillator(); osc.type='sine'; osc.frequency.value=55;
-    const g=ctx.createGain(); g.gain.value=0.04;
-    const lfo=ctx.createOscillator(); lfo.frequency.value=0.1;
-    const lg=ctx.createGain(); lg.gain.value=8;
-    lfo.connect(lg); lg.connect(osc.frequency);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(); lfo.start();
+    const g=ctx.createGain(); g.gain.value=0.03;
+    const lfo=ctx.createOscillator(); lfo.frequency.value=0.08;
+    const lg=ctx.createGain(); lg.gain.value=6;
+    lfo.connect(lg);lg.connect(osc.frequency);
+    osc.connect(g);g.connect(ctx.destination);
+    osc.start();lfo.start();
   }catch(e){}
 }
 
@@ -52,33 +52,33 @@ function playSting(){
     const g=ctx.createGain();
     g.gain.setValueAtTime(0.3,ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime+0.4);
+    osc.connect(g);g.connect(ctx.destination);
+    osc.start();osc.stop(ctx.currentTime+0.4);
   }catch(e){}
 }
 
-function playPowerupSound(){
+function playPing(){
   try{
     const ctx=getAudio();
     const osc=ctx.createOscillator(); osc.type='sine';
     osc.frequency.setValueAtTime(440,ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880,ctx.currentTime+0.2);
+    osc.frequency.exponentialRampToValueAtTime(880,ctx.currentTime+0.15);
     const g=ctx.createGain();
-    g.gain.setValueAtTime(0.3,ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
-    osc.connect(g); g.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime+0.3);
+    g.gain.setValueAtTime(0.25,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);
+    osc.connect(g);g.connect(ctx.destination);
+    osc.start();osc.stop(ctx.currentTime+0.25);
   }catch(e){}
 }
 
 // ─── Particles ────────────────────────────────────────────────────────────────
-(function spawnParticles(){
-  for(let i=0;i<12;i++){
+(function(){
+  for(let i=0;i<10;i++){
     const p=document.createElement('div'); p.className='particle';
     p.style.left=Math.random()*100+'vw';
     p.style.width=p.style.height=(1+Math.random()*3)+'px';
-    p.style.animationDuration=(6+Math.random()*10)+'s';
-    p.style.animationDelay=(Math.random()*8)+'s';
+    p.style.animationDuration=(8+Math.random()*12)+'s';
+    p.style.animationDelay=(Math.random()*10)+'s';
     document.body.appendChild(p);
   }
 })();
@@ -132,10 +132,10 @@ function camOffset(me){ if(!me) return{ox:0,oy:0}; return{ox:Math.round(vpW/2-me
 
 // ─── Drawing ──────────────────────────────────────────────────────────────────
 
-// Maze colours — much lighter so they're clearly visible
-const WALL_COLOR  = '#1e1e38';   // dark but clearly visible walls
-const FLOOR_COLOR = '#2e2e50';   // noticeably lighter floor
-const WALL_EDGE   = 'rgba(160,130,255,0.15)'; // soft purple wall highlight
+// Much lighter maze colours — easy to see without eye strain
+const WALL_COLOR  = '#3a3060';   // visible medium-dark purple
+const FLOOR_COLOR = '#5a5090';   // noticeably lighter floor — clearly passable
+const WALL_SHADE  = '#2a2050';   // darker edge on wall top-left for depth
 
 function drawMaze(maze,ox,oy){
   const cols=maze[0].length, rows=maze.length;
@@ -148,60 +148,77 @@ function drawMaze(maze,ox,oy){
     for(let c=sc;c<=ec;c++){
       const px=c*cellSize+ox, py=r*cellSize+oy;
       if(maze[r][c]===0){
+        // Wall — solid, clearly visible
         ctx.fillStyle=WALL_COLOR;
         ctx.fillRect(px,py,cellSize,cellSize);
-        // Bright inner edge so walls feel solid
-        ctx.fillStyle=WALL_EDGE;
-        ctx.fillRect(px+1,py+1,cellSize-2,cellSize-2);
+        // Top/left darker edge for 3D depth effect
+        ctx.fillStyle=WALL_SHADE;
+        ctx.fillRect(px,py,cellSize,3);
+        ctx.fillRect(px,py,3,cellSize);
+        // Slight lighter bottom/right
+        ctx.fillStyle='rgba(255,255,255,0.06)';
+        ctx.fillRect(px,py+cellSize-3,cellSize,3);
+        ctx.fillRect(px+cellSize-3,py,3,cellSize);
       } else {
+        // Floor — clearly lighter than walls
         ctx.fillStyle=FLOOR_COLOR;
         ctx.fillRect(px,py,cellSize,cellSize);
-        // Subtle grid
-        ctx.strokeStyle='rgba(255,255,255,0.04)';
+        // Subtle tile grid
+        ctx.strokeStyle='rgba(255,255,255,0.06)';
         ctx.lineWidth=1;
-        ctx.strokeRect(px,py,cellSize,cellSize);
+        ctx.strokeRect(px+0.5,py+0.5,cellSize-1,cellSize-1);
       }
     }
   }
 }
 
-const POWERUP_EMOJI={speed:'⚡',shield:'🛡️',reveal:'👁️'};
-const POWERUP_COLOR={speed:'#fbbf24',shield:'#60a5fa',reveal:'#f472b6'};
+function drawKeys(keyList,ox,oy){
+  if(!keyList) return;
+  keyList.forEach(k=>{
+    const kx=k.x+ox, ky=k.y+oy;
+    const t=Date.now()*0.003;
+    const bob=Math.sin(t+k.id)*4;
+    // Glow
+    ctx.save();
+    ctx.shadowColor='#ffd700';
+    ctx.shadowBlur=14;
+    ctx.font='20px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('🗝️',kx,ky+bob);
+    ctx.restore();
+  });
+}
 
 function drawPowerups(powerups,ox,oy){
+  if(!powerups) return;
+  const PEMOJI={speed:'⚡',shield:'🛡️'};
   powerups.forEach(pw=>{
     const px=pw.x+ox, py=pw.y+oy;
-    const col=POWERUP_COLOR[pw.type]||'#fff';
-    // Pulsing glow
-    const pulse=0.6+Math.sin(Date.now()*0.005)*0.4;
-    const grad=ctx.createRadialGradient(px,py,0,px,py,28);
-    grad.addColorStop(0,col.replace(')',`,${0.5*pulse})`).replace('rgb','rgba')||`rgba(255,255,255,${0.5*pulse})`);
-    grad.addColorStop(1,'rgba(0,0,0,0)');
-    // Simple glow circle
+    const pulse=0.7+Math.sin(Date.now()*0.004+pw.id)*0.3;
     ctx.save();
     ctx.globalAlpha=pulse;
-    ctx.fillStyle=col;
-    ctx.beginPath(); ctx.arc(px,py,18,0,Math.PI*2); ctx.fill();
+    ctx.font='20px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor=pw.type==='speed'?'#fbbf24':'#60a5fa';
+    ctx.shadowBlur=16;
+    ctx.fillText(PEMOJI[pw.type]||'★',px,py);
     ctx.restore();
-    ctx.font='18px sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(POWERUP_EMOJI[pw.type]||'★',px,py);
   });
 }
 
 function drawGas(gasClouds,ox,oy){
+  if(!gasClouds) return;
   gasClouds.forEach(g=>{
     const gx=g.x+ox, gy=g.y+oy;
-    const alpha=Math.max(0, 0.55-(g.progress*0.5));
-    const r=55+g.progress*10;
+    const alpha=Math.max(0,0.5-(g.progress*0.45));
+    const r=52+g.progress*8;
     const grad=ctx.createRadialGradient(gx,gy,0,gx,gy,r);
-    grad.addColorStop(0,`rgba(110,220,70,${alpha})`);
-    grad.addColorStop(0.5,`rgba(80,190,40,${alpha*0.5})`);
-    grad.addColorStop(1,'rgba(60,170,30,0)');
+    grad.addColorStop(0,`rgba(100,210,60,${alpha})`);
+    grad.addColorStop(0.5,`rgba(70,180,30,${alpha*0.5})`);
+    grad.addColorStop(1,'rgba(50,160,20,0)');
     ctx.fillStyle=grad;
     ctx.beginPath(); ctx.arc(gx,gy,r,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha=alpha*1.5;
-    ctx.font='18px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.globalAlpha=alpha*1.8;
+    ctx.font='16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('💨',gx,gy);
     ctx.globalAlpha=1;
   });
@@ -212,13 +229,13 @@ function drawExits(exits,ox,oy){
   exits.forEach(exit=>{
     const ex=exit.x+ox, ey=exit.y+oy;
     const pulse=0.7+Math.sin(Date.now()*0.004)*0.3;
-    const grad=ctx.createRadialGradient(ex,ey,0,ex,ey,44);
-    grad.addColorStop(0,`rgba(34,197,94,${0.85*pulse})`);
-    grad.addColorStop(1,'rgba(34,197,94,0)');
+    const grad=ctx.createRadialGradient(ex,ey,0,ex,ey,40);
+    grad.addColorStop(0,`rgba(46,204,113,${0.8*pulse})`);
+    grad.addColorStop(1,'rgba(46,204,113,0)');
     ctx.fillStyle=grad;
-    ctx.beginPath(); ctx.arc(ex,ey,44,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#22c55e';
-    ctx.font='bold 13px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.beginPath(); ctx.arc(ex,ey,40,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#2ecc71';
+    ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('EXIT',ex,ey);
   });
 }
@@ -226,128 +243,153 @@ function drawExits(exits,ox,oy){
 function drawPlayers(players,ox,oy){
   players.forEach((p,i)=>{
     if(p.escaped) return;
+
+    // If this player is invisible — only draw a very faint shimmer (not their position/emoji)
+    // We receive them at their actual position but render them faintly
+    const isInvis = p.invisActive;
+
     const col=PCOLORS[i%PCOLORS.length];
     const px=p.x+ox, py=p.y+oy;
-    const r=14;
+    const r=13;
 
-    // Ghost effect — semi-transparent blue tinge
+    // Ghost wall-phase blue shimmer (everyone sees this)
     if(p.ghostActive){
-      ctx.save(); ctx.globalAlpha=0.55;
-      const gg=ctx.createRadialGradient(px,py,0,px,py,55);
-      gg.addColorStop(0,'rgba(150,120,255,0.6)'); gg.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(px,py,55,0,Math.PI*2); ctx.fill();
+      ctx.save(); ctx.globalAlpha=0.4;
+      ctx.strokeStyle='rgba(150,120,255,0.8)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(px,py,r+8,0,Math.PI*2); ctx.stroke();
       ctx.restore();
+    }
+
+    // Invisible — only a very faint outline visible to runners (can barely be seen)
+    if(isInvis){
+      ctx.save(); ctx.globalAlpha=0.12;
+      ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2);
+      ctx.fillStyle='rgba(100,200,255,0.3)'; ctx.fill();
+      ctx.restore();
+      return; // don't draw glow/body/name
     }
 
     // Shield ring
     if(p.activeEffects?.shield){
-      ctx.save(); ctx.globalAlpha=0.7;
+      ctx.save(); ctx.globalAlpha=0.65;
       ctx.strokeStyle='#60a5fa'; ctx.lineWidth=3;
       ctx.beginPath(); ctx.arc(px,py,r+6,0,Math.PI*2); ctx.stroke();
       ctx.restore();
     }
 
-    // Torch glow — bigger and brighter so maze is visible
-    const torchR=110;
+    // Torch glow — smaller radius, softer
+    const torchR=75;
     const torch=ctx.createRadialGradient(px,py,0,px,py,torchR);
-    torch.addColorStop(0,'rgba(255,255,255,0.28)');
-    torch.addColorStop(0.3,'rgba(255,255,255,0.14)');
-    torch.addColorStop(0.65,'rgba(255,255,255,0.05)');
+    torch.addColorStop(0,'rgba(255,255,255,0.20)');
+    torch.addColorStop(0.4,'rgba(255,255,255,0.08)');
+    torch.addColorStop(0.8,'rgba(255,255,255,0.02)');
     torch.addColorStop(1,'rgba(255,255,255,0)');
     ctx.fillStyle=torch; ctx.beginPath(); ctx.arc(px,py,torchR,0,Math.PI*2); ctx.fill();
 
-    // Speed trail
+    // Speed glow
     if(p.activeEffects?.speed){
-      const sg=ctx.createRadialGradient(px,py,0,px,py,30);
-      sg.addColorStop(0,'rgba(251,191,36,0.3)'); sg.addColorStop(1,'rgba(0,0,0,0)');
-      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(px,py,30,0,Math.PI*2); ctx.fill();
+      const sg=ctx.createRadialGradient(px,py,0,px,py,26);
+      sg.addColorStop(0,'rgba(251,191,36,0.35)'); sg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(px,py,26,0,Math.PI*2); ctx.fill();
     }
 
-    // Red danger glow for farters
+    // Red glow for farters
     if(p.isIt){
-      const dg=ctx.createRadialGradient(px,py,0,px,py,60);
-      dg.addColorStop(0,'rgba(255,30,30,0.45)'); dg.addColorStop(1,'rgba(255,30,30,0)');
-      ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(px,py,60,0,Math.PI*2); ctx.fill();
+      const dg=ctx.createRadialGradient(px,py,0,px,py,44);
+      dg.addColorStop(0,'rgba(255,40,40,0.35)'); dg.addColorStop(1,'rgba(255,40,40,0)');
+      ctx.fillStyle=dg; ctx.beginPath(); ctx.arc(px,py,44,0,Math.PI*2); ctx.fill();
     }
 
     // Body
     ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2);
-    ctx.fillStyle=p.ghostActive?'rgba(180,150,255,0.6)':p.isIt?'#ff3333':col;
+    ctx.fillStyle=p.ghostActive?'rgba(190,160,255,0.7)':p.isIt?'#e74c3c':col;
     ctx.fill();
-    ctx.strokeStyle=p.isIt?'#ff0000':'rgba(255,255,255,0.6)';
-    ctx.lineWidth=2.5; ctx.stroke();
+    ctx.strokeStyle=p.isIt?'#ff6666':'rgba(255,255,255,0.7)';
+    ctx.lineWidth=2; ctx.stroke();
 
     // Emoji
-    ctx.font='16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.font='15px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(p.ghostActive?'👻':p.isIt?'💨':'😨',px,py);
 
-    // Name tag
-    ctx.font='bold 11px sans-serif';
+    // Name
+    ctx.font='bold 10px sans-serif';
     const nw=ctx.measureText(p.name).width+10;
-    ctx.fillStyle='rgba(0,0,0,0.85)';
-    ctx.fillRect(px-nw/2,py-r-18,nw,14);
+    ctx.fillStyle='rgba(20,20,40,0.85)';
+    ctx.fillRect(px-nw/2,py-r-17,nw,13);
     ctx.fillStyle=p.isIt?'#ff9999':'#ffffff';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(p.name,px,py-r-11);
+
+    // Key indicator above runner who has key
+    if(p.hasKey){
+      ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('🗝️',px,py-r-28);
+    }
   });
 }
 
-// Darkness — less opaque so maze is visible even away from torch
+// Darkness — lighter overlay so maze is very readable
 function drawDarkness(players,ox,oy){
-  ctx.fillStyle='rgba(0,0,0,0.45)';
+  ctx.fillStyle='rgba(0,0,0,0.30)';
   ctx.fillRect(0,0,vpW,vpH);
   ctx.save();
   ctx.globalCompositeOperation='destination-out';
   players.forEach(p=>{
-    if(p.escaped) return;
+    if(p.escaped||p.invisActive) return;
     const px=p.x+ox, py=p.y+oy;
-    const grad=ctx.createRadialGradient(px,py,0,px,py,130);
+    const grad=ctx.createRadialGradient(px,py,0,px,py,100);
     grad.addColorStop(0,'rgba(0,0,0,1)');
-    grad.addColorStop(0.5,'rgba(0,0,0,0.85)');
-    grad.addColorStop(0.8,'rgba(0,0,0,0.4)');
+    grad.addColorStop(0.5,'rgba(0,0,0,0.75)');
+    grad.addColorStop(0.85,'rgba(0,0,0,0.25)');
     grad.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=grad;
-    ctx.beginPath(); ctx.arc(px,py,130,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px,py,100,0,Math.PI*2); ctx.fill();
   });
   ctx.restore();
 }
 
-let flickerVal=1, lastFlicker=0;
-
 function render(ts){
   if(!currentMaze||!currentState){animFrame=requestAnimationFrame(render);return;}
-  if(ts-lastFlicker>200+Math.random()*700){flickerVal=0.92+Math.random()*0.08;lastFlicker=ts;}
 
   const me=currentState.players.find(p=>p.id===myId);
   const{ox,oy}=camOffset(me);
 
   ctx.clearRect(0,0,vpW,vpH);
 
-  ctx.save(); ctx.globalAlpha=flickerVal;
+  // Draw maze, objects, players
   drawMaze(currentMaze,ox,oy);
   drawExits(currentState.exits,ox,oy);
-  drawPowerups(currentState.powerups||[],ox,oy);
-  drawGas(currentState.gasClouds||[],ox,oy);
+  // Keys only visible to runners (server sends empty array to farter)
+  drawKeys(currentState.keys,ox,oy);
+  drawPowerups(currentState.powerups,ox,oy);
+  drawGas(currentState.gasClouds,ox,oy);
   drawPlayers(currentState.players,ox,oy);
-  ctx.restore();
 
+  // Lighter darkness overlay
   drawDarkness(currentState.players,ox,oy);
 
-  // Redraw players on top so always visible
-  ctx.save(); ctx.globalAlpha=flickerVal;
+  // Redraw players on top of darkness
   drawPlayers(currentState.players,ox,oy);
-  ctx.restore();
 
   animFrame=requestAnimationFrame(render);
 }
 
 // ─── HUD ──────────────────────────────────────────────────────────────────────
 function setGauge(pct){
-  const color=pct>60?'linear-gradient(90deg,#ff6b6b,#ff3333)':pct>30?'linear-gradient(90deg,#fbbf24,#f59e0b)':'linear-gradient(90deg,#64748b,#475569)';
+  const color=pct>60?'linear-gradient(90deg,#ff7070,#cc2222)':pct>30?'linear-gradient(90deg,#fbbf24,#d97706)':'linear-gradient(90deg,#7070a0,#505080)';
   ['gauge-fill','gauge-fill-desktop'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){el.style.width=Math.max(0,pct)+'%';el.style.background=color;}
   });
+}
+
+function setCooldownBtn(btnId, onCooldown, cdMs, activeLabel, cdLabel){
+  const btn=document.getElementById(btnId);
+  if(!btn) return;
+  btn.disabled=onCooldown;
+  const cdSec=Math.ceil(Math.max(0,cdMs/1000));
+  btn.title=onCooldown?`${cdLabel}: ${cdSec}s`:activeLabel;
+  btn.style.opacity=onCooldown?'0.35':'1';
 }
 
 function updateHUD(state){
@@ -356,8 +398,15 @@ function updateHUD(state){
 
   const roleEl=document.getElementById('hud-role');
   if(me.escaped){roleEl.textContent='✅ ESCAPED!';roleEl.className='hud-role escaped';}
-  else if(me.isIt){roleEl.textContent=me.ghostActive?'👻 GHOST MODE':'💨 YOU ARE THE FARTER';roleEl.className='hud-role is-it';}
-  else{roleEl.textContent='😨 RUN!';roleEl.className='hud-role runner';}
+  else if(me.isIt){
+    let label='💨 FARTER';
+    if(me.ghostActive) label='👻 GHOST MODE';
+    else if(me.invisActive) label='🌫️ INVISIBLE';
+    roleEl.textContent=label; roleEl.className='hud-role is-it';
+  } else {
+    roleEl.textContent=me.hasKey?'🗝️ GOT KEY — FIND EXIT!':'😨 FIND YOUR KEY!';
+    roleEl.className='hud-role runner';
+  }
 
   const m=Math.floor(state.gameTimer/60), s=state.gameTimer%60;
   const te=document.getElementById('hud-timer');
@@ -368,55 +417,61 @@ function updateHUD(state){
   document.getElementById('hud-status').textContent=
     `💨${active.filter(p=>p.isIt).length} 😨${active.filter(p=>!p.isIt).length} ✅${state.players.filter(p=>p.escaped).length}`;
 
-  const fartBtnZone=document.getElementById('fart-btn-zone');
-  const fartKeyHint=document.getElementById('fart-key-hint');
-  const fartBtn=document.getElementById('fart-btn');
-  const ghostBtn=document.getElementById('ghost-btn');
-
-  if(me.isIt&&!me.escaped){
-    if(isTouch){fartBtnZone.style.display='flex';if(fartKeyHint)fartKeyHint.style.display='none';}
-    else{if(fartKeyHint)fartKeyHint.style.display='block';fartBtnZone.style.display='none';}
-
-    fartBtn.disabled=me.gauge<35;
-    setGauge(Math.min(100,me.gauge));
-
-    // Ghost button cooldown
-    if(ghostBtn){
-      const onCooldown=me.ghostCooldownUntil>Date.now();
-      ghostBtn.disabled=onCooldown||me.ghostActive;
-      const cdSec=Math.ceil(Math.max(0,(me.ghostCooldownUntil-Date.now())/1000));
-      ghostBtn.title=onCooldown?`Ghost: ${cdSec}s`:'Ghost mode (pass through walls)';
-      ghostBtn.style.opacity=onCooldown?'0.35':'1';
-    }
-  } else {
-    fartBtnZone.style.display='none';
-    if(fartKeyHint)fartKeyHint.style.display='none';
-  }
-
-  // Active effect badges on HUD
   const badges=document.getElementById('hud-effects');
   if(badges){
     badges.innerHTML='';
     if(me.activeEffects?.speed)  badges.innerHTML+='<span class="effect-badge">⚡</span>';
     if(me.activeEffects?.shield) badges.innerHTML+='<span class="effect-badge">🛡️</span>';
-    if(me.activeEffects?.reveal) badges.innerHTML+='<span class="effect-badge">👁️</span>';
+  }
+
+  const now=Date.now();
+  const fartBtnZone=document.getElementById('fart-btn-zone');
+  const fartKeyHint=document.getElementById('fart-key-hint');
+  const fartBtn=document.getElementById('fart-btn');
+
+  if(me.isIt&&!me.escaped){
+    if(isTouch){fartBtnZone.style.display='flex';if(fartKeyHint)fartKeyHint.style.display='none';}
+    else{if(fartKeyHint)fartKeyHint.style.display='block';fartBtnZone.style.display='none';}
+    fartBtn.disabled=me.gauge<35;
+    setGauge(Math.min(100,me.gauge));
+    setCooldownBtn('ghost-btn',now<me.ghostCooldownUntil,me.ghostCooldownUntil-now,'Ghost (pass through walls)','Ghost cooldown');
+    setCooldownBtn('invis-btn',now<me.invisCooldownUntil,me.invisCooldownUntil-now,'Go invisible (4s)','Invisible cooldown');
+  } else {
+    fartBtnZone.style.display='none';
+    if(fartKeyHint)fartKeyHint.style.display='none';
+  }
+
+  // Key status bar for runners
+  const keyStatus=document.getElementById('key-status');
+  if(keyStatus){
+    if(!me.isIt&&!me.escaped){
+      keyStatus.classList.remove('hidden');
+      if(me.hasKey){keyStatus.textContent='🗝️ Key collected! Find the EXIT!';keyStatus.className='key-status has-key';}
+      else{keyStatus.textContent='🔍 Find your key first!';keyStatus.className='key-status no-key';}
+    } else {
+      keyStatus.classList.add('hidden');
+    }
   }
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 function doFart(){ socket.emit('fart',{code:currentCode}); playFart(); }
 function doGhost(){ socket.emit('ghost',{code:currentCode}); }
+function doInvis(){ socket.emit('invis',{code:currentCode}); }
 
 document.getElementById('fart-btn').addEventListener('click',doFart);
 document.getElementById('fart-btn').addEventListener('touchstart',e=>{e.preventDefault();doFart();},{passive:false});
 document.getElementById('ghost-btn').addEventListener('click',doGhost);
 document.getElementById('ghost-btn').addEventListener('touchstart',e=>{e.preventDefault();doGhost();},{passive:false});
+document.getElementById('invis-btn').addEventListener('click',doInvis);
+document.getElementById('invis-btn').addEventListener('touchstart',e=>{e.preventDefault();doInvis();},{passive:false});
 
 // ─── Keyboard ─────────────────────────────────────────────────────────────────
 document.addEventListener('keydown',e=>{
   keys[e.key]=true;
   if(e.key===' '&&myIsIt){e.preventDefault();doFart();}
-  if((e.key==='g'||e.key==='G')&&myIsIt){doGhost();}
+  if((e.key==='g'||e.key==='G')&&myIsIt) doGhost();
+  if((e.key==='f'||e.key==='F')&&myIsIt) doInvis();
   sendInput();
 });
 document.addEventListener('keyup',e=>{keys[e.key]=false;sendInput();});
@@ -438,30 +493,28 @@ function setupJoystick(){
   const stick=document.getElementById('joystick-stick');
   const maxR=38;
   zone.style.display='block';
-
-  let touching=false, originX=0, originY=0;
+  let touching=false,originX=0,originY=0;
 
   base.addEventListener('touchstart',e=>{
-    e.preventDefault(); touching=true; stick.classList.add('active');
+    e.preventDefault();touching=true;stick.classList.add('active');
     const rect=base.getBoundingClientRect();
-    originX=rect.left+rect.width/2; originY=rect.top+rect.height/2;
+    originX=rect.left+rect.width/2;originY=rect.top+rect.height/2;
   },{passive:false});
 
   document.addEventListener('touchmove',e=>{
     if(!touching) return; e.preventDefault();
     const t=e.changedTouches[0];
-    let dx=t.clientX-originX, dy=t.clientY-originY;
+    let dx=t.clientX-originX,dy=t.clientY-originY;
     const len=Math.hypot(dx,dy);
     if(len>maxR){dx=dx/len*maxR;dy=dy/len*maxR;}
     stick.style.left=(50+dx/maxR*50)+'%';
     stick.style.top=(50+dy/maxR*50)+'%';
-    const ndx=len>6?dx/len:0, ndy=len>6?dy/len:0;
-    socket.emit('input',{code:currentCode,dx:ndx,dy:ndy});
+    socket.emit('input',{code:currentCode,dx:len>6?dx/len:0,dy:len>6?dy/len:0});
   },{passive:false});
 
   document.addEventListener('touchend',()=>{
-    touching=false; stick.classList.remove('active');
-    stick.style.left='50%'; stick.style.top='50%';
+    touching=false;stick.classList.remove('active');
+    stick.style.left='50%';stick.style.top='50%';
     socket.emit('input',{code:currentCode,dx:0,dy:0});
   });
 }
@@ -469,15 +522,16 @@ function setupJoystick(){
 window.addEventListener('touchstart',()=>{ if(!isTouch){isTouch=true;setupJoystick();} },{once:true});
 
 // ─── Fart message ─────────────────────────────────────────────────────────────
-let fartMsgTimer=null;
-function showMsg(msg){
+let msgTimer=null;
+function showMsg(msg,borderColor='#2ecc71'){
   const el=document.getElementById('fart-msg');
   el.textContent=msg; el.classList.remove('hidden');
-  clearTimeout(fartMsgTimer);
-  fartMsgTimer=setTimeout(()=>el.classList.add('hidden'),3000);
+  el.style.borderColor=borderColor;
+  clearTimeout(msgTimer);
+  msgTimer=setTimeout(()=>el.classList.add('hidden'),3000);
   const flash=document.getElementById('fart-flash');
   flash.classList.remove('hidden');
-  setTimeout(()=>flash.classList.add('hidden'),600);
+  setTimeout(()=>flash.classList.add('hidden'),500);
 }
 
 // ─── Socket Events ────────────────────────────────────────────────────────────
@@ -504,21 +558,28 @@ socket.on('gameState',state=>{
 
 socket.on('farted',({chaserId,victimId,chaserName,victimName})=>{
   playFart();
-  if(victimId===myId){showMsg(`💨 You walked into ${chaserName}'s gas! Now YOU are the farter!`);playSting();}
+  if(victimId===myId){showMsg(`💨 Caught in ${chaserName}'s gas! You're the farter now!`,'#e74c3c');playSting();}
   else if(chaserId===myId){showMsg(`💨 ${victimName} walked into your gas!`);}
   else{showMsg(`💨 ${victimName} got gassed by ${chaserName}!`);}
 });
 
+socket.on('keyCollected',({playerId,playerName})=>{
+  playPing();
+  if(playerId===myId) showMsg('🗝️ Key collected! Find the EXIT!','#f1c40f');
+  else showMsg(`🗝️ ${playerName} found their key!`,'#f1c40f');
+});
+
 socket.on('playerEscaped',({id,name})=>{
-  if(id===myId) showMsg('✅ YOU ESCAPED!');
-  else showMsg(`✅ ${name} escaped!`);
+  playPing();
+  if(id===myId) showMsg('✅ YOU ESCAPED!','#2ecc71');
+  else showMsg(`✅ ${name} escaped!`,'#2ecc71');
 });
 
 socket.on('powerupCollected',({playerId,playerName,type})=>{
-  playPowerupSound();
-  const labels={speed:'⚡ Speed boost',shield:'🛡️ Shield',reveal:'👁️ Reveal'};
-  if(playerId===myId) showMsg(`${labels[type]||type} activated!`);
-  else showMsg(`${playerName} grabbed ${labels[type]||type}!`);
+  playPing();
+  const labels={speed:'⚡ Speed boost',shield:'🛡️ Shield'};
+  if(playerId===myId) showMsg(`${labels[type]||type} activated!`,'#a78bfa');
+  else showMsg(`${playerName} grabbed ${labels[type]||type}!`,'#a78bfa');
 });
 
 socket.on('gameEnded',({winners,escaped,caught})=>{
@@ -526,8 +587,8 @@ socket.on('gameEnded',({winners,escaped,caught})=>{
   show('end');
   const teamWon=winners==='runners';
   document.getElementById('end-emoji').textContent=teamWon?'🏃':'💨';
-  document.getElementById('end-title').textContent=teamWon?'Runners Win!':'Farters Win!';
-  document.getElementById('end-body').textContent=teamWon?'Some survivors made it out alive!':'Nobody escaped. The maze reeked of victory.';
+  document.getElementById('end-title').textContent=teamWon?'Runners Win!':'Farter Wins!';
+  document.getElementById('end-body').textContent=teamWon?'Some survivors escaped with their keys!':'Nobody got out. The maze reeked of victory.';
   const lists=document.getElementById('end-lists'); lists.innerHTML='';
   if(escaped.length){
     const g=document.createElement('div');g.className='end-group';
