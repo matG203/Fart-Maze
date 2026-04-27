@@ -12,8 +12,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const MAZE_COLS = 41;          // bigger map (must be odd)
 const MAZE_ROWS = 41;
 const CELL_SIZE = 40;
-const RUNNER_SPEED  = 3;
-const FARTER_SPEED  = 5;
+const RUNNER_SPEED  = 10;
+const FARTER_SPEED  = 10;
 const TICK_MS       = 50;
 const ESCAPE_RADIUS = 32;
 const MAX_PLAYERS   = 8;
