@@ -15,7 +15,7 @@
       <span class="title-emoji">💨</span>
       <h1>FART<br>MAZE</h1>
     </div>
-    <p class="tagline">Escape. Or be crop-dusted.</p>
+    <p class="tagline">Find the key. Escape. Don't get gassed.</p>
   </div>
   <div class="card">
     <input id="home-name" type="text" placeholder="Your name" maxlength="20" autocomplete="off"/>
@@ -53,7 +53,7 @@
   <div id="game-hud" class="game-hud">
     <div id="hud-role" class="hud-role"></div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-      <div id="hud-timer" class="hud-timer">3:00</div>
+      <div id="hud-timer" class="hud-timer">4:00</div>
       <div id="hud-effects" class="effect-badges"></div>
     </div>
     <div id="hud-status" class="hud-status"></div>
@@ -63,7 +63,7 @@
     <canvas id="gameCanvas"></canvas>
   </div>
 
-  <!-- Mobile joystick -->
+  <!-- Mobile joystick — bottom left -->
   <div id="joystick-zone" class="joystick-zone">
     <div class="joystick-label">MOVE</div>
     <div id="joystick-base" class="joystick-base">
@@ -72,23 +72,28 @@
     </div>
   </div>
 
-  <!-- Fart + Ghost buttons (mobile, farter only) -->
+  <!-- Farter ability buttons — bottom right (mobile only) -->
   <div id="fart-btn-zone" class="fart-btn-zone" style="display:none">
-    <div class="gauge-label">GAS GAUGE</div>
+    <div class="gauge-label">GAS</div>
     <div class="gauge-wrap"><div id="gauge-fill" class="gauge-bar" style="width:100%"></div></div>
     <button id="fart-btn" class="fart-btn" title="Drop gas cloud">💨</button>
-    <button id="ghost-btn" class="ghost-btn" title="Ghost — pass through walls (15s cooldown)">👻</button>
+    <button id="ghost-btn" class="ghost-btn" title="Ghost — pass through walls (2s)">👻</button>
+    <button id="invis-btn" class="invis-btn" title="Go invisible (4s)">🌫️</button>
   </div>
 
-  <!-- Desktop fart hints -->
+  <!-- Desktop key hints (farter only) -->
   <div id="fart-key-hint" class="fart-key-hint" style="display:none">
-    <span>💨</span> SPACE to fart &nbsp;|&nbsp; G to ghost
+    <span>💨</span>
+    SPACE = gas &nbsp;·&nbsp; G = ghost &nbsp;·&nbsp; F = invisible
     <div class="gauge-wrap" style="margin-top:8px">
       <div id="gauge-fill-desktop" class="gauge-bar" style="width:100%"></div>
     </div>
   </div>
 
-  <!-- Fart flash overlay -->
+  <!-- Key status bar — bottom centre (runners only) -->
+  <div id="key-status" class="key-status no-key hidden">🔍 Find your key first!</div>
+
+  <!-- Flash + message -->
   <div id="fart-flash" class="fart-flash hidden"></div>
   <div id="fart-msg" class="fart-msg hidden"></div>
 </div>
