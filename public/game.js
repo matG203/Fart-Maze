@@ -200,135 +200,194 @@ function getPlayerColor(id, players) {
   return PLAYER_COLORS[idx % PLAYER_COLORS.length] || '#fff';
 }
 
+// ─── Viewport / Camera ────────────────────────────────────────────────────────
+// Canvas fills the screen. We translate so MY player is always centred.
+let vpW = window.innerWidth;
+let vpH = window.innerHeight - 44; // minus HUD
+
 function resizeCanvas() {
-  const wrap = document.getElementById('canvas-wrap');
-  if (!currentMaze) return;
-  const mazeW = currentMaze[0].length * cellSize;
-  const mazeH = currentMaze.length * cellSize;
-  const scaleX = wrap.clientWidth / mazeW;
-  const scaleY = (wrap.clientHeight) / mazeH;
-  const scale = Math.min(scaleX, scaleY, 1);
-  canvas.style.transform = `scale(${scale})`;
-  canvas.style.transformOrigin = 'top left';
-  canvas.width = mazeW;
-  canvas.height = mazeH;
+  vpW = window.innerWidth;
+  vpH = window.innerHeight - 44;
+  canvas.width  = vpW;
+  canvas.height = vpH;
+  canvas.style.transform = '';
+  canvas.style.transformOrigin = '';
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Get camera offset so myPlayer is centred
+function getCameraOffset(myPlayer) {
+  if (!myPlayer) return { ox: 0, oy: 0 };
+  const ox = Math.round(vpW / 2 - myPlayer.x);
+  const oy = Math.round(vpH / 2 - myPlayer.y);
+  return { ox, oy };
 }
 
-window.addEventListener('resize', resizeCanvas);
-
-function drawMaze(maze) {
+// ─── Drawing ──────────────────────────────────────────────────────────────────
+function drawMaze(maze, ox, oy) {
   const cols = maze[0].length;
   const rows = maze.length;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+
+  // Only draw cells visible in viewport (perf optimisation)
+  const startC = Math.max(0, Math.floor(-ox / cellSize));
+  const endC   = Math.min(cols - 1, Math.ceil((vpW - ox) / cellSize));
+  const startR = Math.max(0, Math.floor(-oy / cellSize));
+  const endR   = Math.min(rows - 1, Math.ceil((vpH - oy) / cellSize));
+
+  for (let r = startR; r <= endR; r++) {
+    for (let c = startC; c <= endC; c++) {
+      const px = c * cellSize + ox;
+      const py = r * cellSize + oy;
       if (maze[r][c] === 0) {
-        // Wall
-        ctx.fillStyle = '#0a0a16';
-        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
-        // subtle wall texture
-        ctx.fillStyle = 'rgba(124,58,237,0.07)';
-        ctx.fillRect(c * cellSize + 1, r * cellSize + 1, cellSize - 2, cellSize - 2);
+        ctx.fillStyle = '#07070f';
+        ctx.fillRect(px, py, cellSize, cellSize);
+        ctx.fillStyle = 'rgba(124,58,237,0.06)';
+        ctx.fillRect(px + 1, py + 1, cellSize - 2, cellSize - 2);
       } else {
-        // Floor
         ctx.fillStyle = '#0d0d1f';
-        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
-        // subtle grid lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.02)';
-        ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
+        ctx.fillRect(px, py, cellSize, cellSize);
+        ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+        ctx.strokeRect(px, py, cellSize, cellSize);
       }
     }
   }
 }
 
-function drawExit(exitPos) {
+function drawExit(exitPos, ox, oy) {
   if (!exitPos) return;
-  // Glowing exit
-  const grad = ctx.createRadialGradient(exitPos.x, exitPos.y, 0, exitPos.x, exitPos.y, 30);
-  grad.addColorStop(0, 'rgba(34,197,94,0.6)');
+  const ex = exitPos.x + ox;
+  const ey = exitPos.y + oy;
+  const grad = ctx.createRadialGradient(ex, ey, 0, ex, ey, 36);
+  grad.addColorStop(0, 'rgba(34,197,94,0.7)');
   grad.addColorStop(1, 'rgba(34,197,94,0)');
   ctx.fillStyle = grad;
   ctx.beginPath();
-  ctx.arc(exitPos.x, exitPos.y, 30, 0, Math.PI * 2);
+  ctx.arc(ex, ey, 36, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.fillStyle = '#22c55e';
-  ctx.font = 'bold 18px sans-serif';
+  ctx.font = 'bold 14px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('EXIT', exitPos.x, exitPos.y);
+  ctx.fillText('EXIT', ex, ey);
 }
 
-function drawPlayers(players) {
+function drawPlayers(players, ox, oy) {
   players.forEach((p, i) => {
     if (p.escaped) return;
     const color = PLAYER_COLORS[i % PLAYER_COLORS.length];
-    const r = 12;
+    const px = p.x + ox;
+    const py = p.y + oy;
+    const r = 13;
 
-    // Glow for chaser
+    // ── Large white torch glow centred on every player ──
+    const torchR = 90;
+    const torch = ctx.createRadialGradient(px, py, 0, px, py, torchR);
+    torch.addColorStop(0,   'rgba(255,255,255,0.18)');
+    torch.addColorStop(0.4, 'rgba(255,255,255,0.08)');
+    torch.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.fillStyle = torch;
+    ctx.beginPath();
+    ctx.arc(px, py, torchR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Extra red menace glow for chaser
     if (p.isIt) {
-      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.5);
-      grad.addColorStop(0, 'rgba(255,50,50,0.5)');
-      grad.addColorStop(1, 'rgba(255,50,50,0)');
-      ctx.fillStyle = grad;
+      const danger = ctx.createRadialGradient(px, py, 0, px, py, 60);
+      danger.addColorStop(0, 'rgba(255,30,30,0.35)');
+      danger.addColorStop(1, 'rgba(255,30,30,0)');
+      ctx.fillStyle = danger;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, r * 2.5, 0, Math.PI * 2);
+      ctx.arc(px, py, 60, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Body
+    // Body circle
     ctx.beginPath();
-    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = p.isIt ? '#ff4444' : color;
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = p.isIt ? '#ff3333' : color;
     ctx.fill();
-    ctx.strokeStyle = p.isIt ? '#ff0000' : 'rgba(255,255,255,0.3)';
+    ctx.strokeStyle = p.isIt ? '#ff0000' : 'rgba(255,255,255,0.5)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Emoji label
-    ctx.font = '14px sans-serif';
+    // Emoji
+    ctx.font = '15px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(p.isIt ? '💨' : '😨', p.x, p.y);
+    ctx.fillText(p.isIt ? '💨' : '😨', px, py);
 
-    // Name above
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    // Name tag
+    ctx.font = 'bold 10px sans-serif';
     const nameW = ctx.measureText(p.name).width + 8;
-    ctx.fillRect(p.x - nameW/2, p.y - r - 18, nameW, 14);
-    ctx.fillStyle = p.isIt ? '#ff8888' : '#ffffff';
-    ctx.font = '10px sans-serif';
-    ctx.fillText(p.name, p.x, p.y - r - 11);
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(px - nameW/2, py - r - 17, nameW, 13);
+    ctx.fillStyle = p.isIt ? '#ff9999' : '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.name, px, py - r - 11);
   });
+}
+
+// ── Darkness overlay with holes cut out for each player's torch ──
+function drawDarkness(players, ox, oy) {
+  // Fill entire canvas with near-black
+  ctx.fillStyle = 'rgba(0,0,0,0.82)';
+  ctx.fillRect(0, 0, vpW, vpH);
+
+  // Cut out torch circles using destination-out compositing
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  players.forEach(p => {
+    if (p.escaped) return;
+    const px = p.x + ox;
+    const py = p.y + oy;
+    const torchR = 110;
+    const grad = ctx.createRadialGradient(px, py, 0, px, py, torchR);
+    grad.addColorStop(0,   'rgba(0,0,0,1)');
+    grad.addColorStop(0.6, 'rgba(0,0,0,0.7)');
+    grad.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(px, py, torchR, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.restore();
 }
 
 let flickerVal = 1;
 let lastFlicker = 0;
-function applyFlicker(timestamp) {
-  if (timestamp - lastFlicker > 80 + Math.random() * 400) {
-    flickerVal = 0.85 + Math.random() * 0.15;
-    lastFlicker = timestamp;
-  }
-  ctx.save();
-  ctx.globalAlpha = flickerVal;
-}
 
 function render(timestamp) {
   if (!currentMaze || !currentState) { animFrame = requestAnimationFrame(render); return; }
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  applyFlicker(timestamp);
+  // Subtle flicker
+  if (timestamp - lastFlicker > 100 + Math.random() * 500) {
+    flickerVal = 0.88 + Math.random() * 0.12;
+    lastFlicker = timestamp;
+  }
 
-  drawMaze(currentMaze);
-  drawExit(currentState.exitPos);
-  drawPlayers(currentState.players);
+  const me = currentState.players.find(p => p.id === myId);
+  const { ox, oy } = getCameraOffset(me);
 
+  ctx.clearRect(0, 0, vpW, vpH);
+
+  // 1. Draw full maze (dim)
+  ctx.save();
+  ctx.globalAlpha = flickerVal;
+  drawMaze(currentMaze, ox, oy);
+  drawExit(currentState.exitPos, ox, oy);
+  drawPlayers(currentState.players, ox, oy);
   ctx.restore();
 
-  // Vignette
-  const vg = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.width*0.3, canvas.width/2, canvas.height/2, canvas.width*0.8);
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, 'rgba(0,0,0,0.65)');
-  ctx.fillStyle = vg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // 2. Darkness mask with torch cut-outs
+  drawDarkness(currentState.players, ox, oy);
+
+  // 3. Redraw players on TOP of darkness so they're always visible
+  ctx.save();
+  ctx.globalAlpha = flickerVal;
+  drawPlayers(currentState.players, ox, oy);
+  ctx.restore();
 
   animFrame = requestAnimationFrame(render);
 }
@@ -455,12 +514,10 @@ socket.on('lobbyState', data => {
   renderLobby(data);
 });
 
-socket.on('mazeData', ({ maze, cellSize: cs, cols, rows }) => {
+socket.on('mazeData', ({ maze, cellSize: cs }) => {
   currentMaze = maze;
   cellSize = cs;
   resizeCanvas();
-  canvas.width = cols * cs;
-  canvas.height = rows * cs;
   playAmbient();
 });
 
