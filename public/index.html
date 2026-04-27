@@ -52,7 +52,10 @@
 <div id="screen-game" class="screen">
   <div id="game-hud" class="game-hud">
     <div id="hud-role" class="hud-role"></div>
-    <div id="hud-timer" class="hud-timer">3:00</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div id="hud-timer" class="hud-timer">3:00</div>
+      <div id="hud-effects" class="effect-badges"></div>
+    </div>
     <div id="hud-status" class="hud-status"></div>
   </div>
 
@@ -69,18 +72,20 @@
     </div>
   </div>
 
-  <!-- Fart button (mobile, farter only) -->
+  <!-- Fart + Ghost buttons (mobile, farter only) -->
   <div id="fart-btn-zone" class="fart-btn-zone" style="display:none">
     <div class="gauge-label">GAS GAUGE</div>
     <div class="gauge-wrap"><div id="gauge-fill" class="gauge-bar" style="width:100%"></div></div>
-    <button id="fart-btn" class="fart-btn">💨</button>
+    <button id="fart-btn" class="fart-btn" title="Drop gas cloud">💨</button>
+    <button id="ghost-btn" class="ghost-btn" title="Ghost — pass through walls (15s cooldown)">👻</button>
   </div>
 
-  <!-- Desktop fart hint (shown to farter on desktop) -->
+  <!-- Desktop fart hints -->
   <div id="fart-key-hint" class="fart-key-hint" style="display:none">
-    <span>💨</span>
-    SPACE to fart
-    <div class="gauge-wrap" style="margin-top:8px"><div id="gauge-fill-desktop" class="gauge-bar" style="width:100%"></div></div>
+    <span>💨</span> SPACE to fart &nbsp;|&nbsp; G to ghost
+    <div class="gauge-wrap" style="margin-top:8px">
+      <div id="gauge-fill-desktop" class="gauge-bar" style="width:100%"></div>
+    </div>
   </div>
 
   <!-- Fart flash overlay -->
